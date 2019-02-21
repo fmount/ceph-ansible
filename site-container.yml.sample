@@ -130,6 +130,7 @@
         name: ceph-mon
     - import_role:
         name: ceph-mgr
+      when: '"mgrs" not in groups'
 
 - hosts: mons
   any_errors_fatal: true
@@ -526,10 +527,19 @@
     - import_role:
         name: ceph-facts
       tags: ['ceph_update_config']
+      when: dashboard_enabled
     - import_role:
         name: ceph-handler
+      when: dashboard_enabled
     - import_role:
         name: ceph-node-exporter
+      when: dashboard_enabled
+    - import_role:
+        name: ceph-common
+      when: dashboard_enabled
+    - import_role:
+        name: ceph-config
+      tags: ['ceph_update_config']
       when: dashboard_enabled
     - import_role:
         name: ceph-prometheus
@@ -538,7 +548,7 @@
         name: ceph-grafana
       when: dashboard_enabled
 
-- hosts: mons[0]
+- hosts: '{{ (groups["mgrs"] | default(groups["mons"]))[0] }}'
   become: true
   tasks:
     - import_role:

@@ -12,7 +12,7 @@ scrape_configs:
   - job_name: 'ceph'
     honor_labels: true
     static_configs:
-{% for host in groups['mons'] | union(groups['mgrs'] | default([])) %}
+{% for host in groups['mgrs'] | default(groups['mons']) %}
       - targets: ['{{ host }}:9283']
         labels:
           instance: 'ceph_cluster'

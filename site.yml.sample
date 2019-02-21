@@ -110,6 +110,7 @@
         name: ceph-mon
     - import_role:
         name: ceph-mgr
+      when: '"mgrs" not in groups'
 
   post_tasks:
     - name: set ceph monitor install 'Complete'
@@ -552,7 +553,7 @@
         name: ceph-grafana
       when: dashboard_enabled
 
-- hosts: mons[0]
+- hosts: '{{ (groups["mgrs"] | default(groups["mons"]))[0] }}'
   become: true
   tasks:
     - import_role:

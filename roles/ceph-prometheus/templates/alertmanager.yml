@@ -10,6 +10,6 @@ route:
 receivers:
 - name: 'ceph-dashboard'
   webhook_configs:
-{% for host in groups['mons'] | union(groups['mgrs'] | default([])) %}
+{% for host in groups['mgrs'] | default(groups['mons']) %}
   - url: 'http://{{ host }}:{{ dashboard_port }}/api/prometheus_receiver'
 {% endfor %}
