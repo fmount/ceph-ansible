@@ -41,10 +41,6 @@ fsid = {{ fsid }}
 log file = /dev/null
 mon cluster log file = /dev/null
 {% endif %}
-{# if ceph_release not in ['jewel', 'kraken', 'luminous', 'mimic'] %}
-{% set mon_host_v1_suffix = ":6789" %}
-{% set mon_host_v2_suffix = ":3300" %}
-{% endif #}
 {% set mon_host_v2_suffix = ":3300" %}
 mon host = {% if nb_mon > 0 %}
 {% for host in _monitor_addresses -%}
