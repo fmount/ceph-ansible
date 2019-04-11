@@ -425,6 +425,10 @@ email_address: foo@bar.com
 # Monitor handler checks
 handler_health_mon_check_retries: 5
 handler_health_mon_check_delay: 10
+
+# Monitor protocols
+mon_host_v1_suffix: ":6789"
+mon_host_v2_suffix: ":3300"
 #
 # OSD handler checks
 handler_health_osd_check_retries: 40
