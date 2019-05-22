@@ -7,6 +7,7 @@ After=docker.service
 {% endif %}
 
 [Service]
+WorkingDirectory=/var/lib/alertmanager
 EnvironmentFile=-/etc/environment
 ExecStartPre=-/usr/bin/{{ container_binary }} rm -f alertmanager
 ExecStart=/usr/bin/{{ container_binary }} run --name=alertmanager \

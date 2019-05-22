@@ -13,6 +13,7 @@ NOSDS           = settings['osd_vms']
 NMDSS           = settings['mds_vms']
 NRGWS           = settings['rgw_vms']
 NNFSS           = settings['nfs_vms']
+GRAFANA         = settings['grafana']
 NRBD_MIRRORS    = settings['rbd_mirror_vms']
 CLIENTS         = settings['client_vms']
 NISCSI_GWS      = settings['iscsi_gw_vms']
@@ -48,13 +49,14 @@ ansible_provision = proc do |ansible|
   # https://github.com/mitchellh/vagrant/issues/3539
   ansible.groups = {
     'mons'             => (0..NMONS - 1).map { |j| "#{LABEL_PREFIX}mon#{j}" },
+    'grafana'          => (0..GRAFANA - 1).map { |j| "#{LABEL_PREFIX}grafana#{j}" },
     'osds'             => (0..NOSDS - 1).map { |j| "#{LABEL_PREFIX}osd#{j}" },
     'mdss'             => (0..NMDSS - 1).map { |j| "#{LABEL_PREFIX}mds#{j}" },
     'rgws'             => (0..NRGWS - 1).map { |j| "#{LABEL_PREFIX}rgw#{j}" },
     'nfss'             => (0..NNFSS - 1).map { |j| "#{LABEL_PREFIX}nfs#{j}" },
     'rbd_mirrors'      => (0..NRBD_MIRRORS - 1).map { |j| "#{LABEL_PREFIX}rbd_mirror#{j}" },
     'clients'          => (0..CLIENTS - 1).map { |j| "#{LABEL_PREFIX}client#{j}" },
-    'iscsigws'        => (0..NISCSI_GWS - 1).map { |j| "#{LABEL_PREFIX}iscsi_gw#{j}" },
+    'iscsigws'         => (0..NISCSI_GWS - 1).map { |j| "#{LABEL_PREFIX}iscsi_gw#{j}" },
     'mgrs'             => (0..MGRS - 1).map { |j| "#{LABEL_PREFIX}mgr#{j}" }
   }
 
@@ -67,7 +69,7 @@ ansible_provision = proc do |ansible|
   # In a production deployment, these should be secret
   if DOCKER then
     ansible.extra_vars = ansible.extra_vars.merge({
-      containerized_deployment: 'true',
+      containerized_deployment: true,
       monitor_interface: ETH,
       ceph_mon_docker_subnet: "#{PUBLIC_SUBNET}.0/24",
       devices: settings['disks'],
@@ -174,6 +176,41 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       provider.xvda_size = 4*1024
       # add some swap as the Linode distros require it
       provider.swap_size = 128
+    end
+  end
+
+  (0..GRAFANA - 1).each do |i|
+    config.vm.define "#{LABEL_PREFIX}grafana#{i}" do |mgr|
+      mgr.vm.hostname = "#{LABEL_PREFIX}grafana#{i}"
+      if ASSIGN_STATIC_IP
+        mgr.vm.network :private_network,
+          ip: "#{PUBLIC_SUBNET}.3#{i}"
+      end
+      # Virtualbox
+      mgr.vm.provider :virtualbox do |vb|
+        vb.customize ['modifyvm', :id, '--memory', "#{MEMORY}"]
+      end
+
+      # VMware
+      mgr.vm.provider :vmware_fusion do |v|
+        v.vmx['memsize'] = "#{MEMORY}"
+      end
+
+      # Libvirt
+      mgr.vm.provider :libvirt do |lv|
+        lv.memory = MEMORY
+        lv.random_hostname = true
+      end
+
+      # Parallels
+      mgr.vm.provider "parallels" do |prl|
+        prl.name = "ceph-grafana#{i}"
+        prl.memory = "#{MEMORY}"
+      end
+
+      mgr.vm.provider :linode do |provider|
+        provider.label = mgr.vm.hostname
+      end
     end
   end
 
