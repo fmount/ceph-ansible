@@ -49,7 +49,6 @@ ansible_provision = proc do |ansible|
   # https://github.com/mitchellh/vagrant/issues/3539
   ansible.groups = {
     'mons'             => (0..NMONS - 1).map { |j| "#{LABEL_PREFIX}mon#{j}" },
-    'grafana'          => (0..GRAFANA - 1).map { |j| "#{LABEL_PREFIX}grafana#{j}" },
     'osds'             => (0..NOSDS - 1).map { |j| "#{LABEL_PREFIX}osd#{j}" },
     'mdss'             => (0..NMDSS - 1).map { |j| "#{LABEL_PREFIX}mds#{j}" },
     'rgws'             => (0..NRGWS - 1).map { |j| "#{LABEL_PREFIX}rgw#{j}" },
@@ -57,7 +56,8 @@ ansible_provision = proc do |ansible|
     'rbd_mirrors'      => (0..NRBD_MIRRORS - 1).map { |j| "#{LABEL_PREFIX}rbd_mirror#{j}" },
     'clients'          => (0..CLIENTS - 1).map { |j| "#{LABEL_PREFIX}client#{j}" },
     'iscsigws'         => (0..NISCSI_GWS - 1).map { |j| "#{LABEL_PREFIX}iscsi_gw#{j}" },
-    'mgrs'             => (0..MGRS - 1).map { |j| "#{LABEL_PREFIX}mgr#{j}" }
+    'mgrs'             => (0..MGRS - 1).map { |j| "#{LABEL_PREFIX}mgr#{j}" },
+    'grafana'          => (0..GRAFANA - 1).map { |j| "#{LABEL_PREFIX}grafana#{j}" }
   }
 
   ansible.extra_vars = {
