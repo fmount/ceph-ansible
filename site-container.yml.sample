@@ -13,7 +13,7 @@
   - iscsigws
   - iscsi-gws # for backward compatibility only!
   - mgrs
-  - grafana
+  - grafana-server
 
   gather_facts: false
   become: True
@@ -532,7 +532,7 @@
       run_once: true
       when: not ceph_status.failed
 
-- hosts: '{{ (groups["grafana"] | default(groups["mons"])) }}'
+- hosts: '{{ (groups["grafana-server"] | default(groups["mons"])) }}'
   become: true
   tasks:
     - block:
@@ -559,7 +559,7 @@
           name: ceph-grafana
       when: dashboard_enabled
 
-- hosts: '{{ (groups["mgrs"][0] | default(groups["mons"][0])) }}'
+- hosts: '{{ (groups["mgrs"] | default(groups["mons"]))[0] | default(omit) }}'
   become: true
   tasks:
     - block:
