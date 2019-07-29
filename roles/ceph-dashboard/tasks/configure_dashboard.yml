@@ -173,3 +173,8 @@
   command: "{{ container_exec_cmd }} ceph mgr module enable dashboard"
   changed_when: false
   delegate_to: "{{ groups[mon_group_name][0] }}"
+
+- name: push ceph dashboard grafana layouts
+  command: "{{ container_exec_cmd }} ceph dashboard grafana dashboards update"
+  changed_when: false
+  delegate_to: "{{ groups[mgr_group_name][0] }}"
